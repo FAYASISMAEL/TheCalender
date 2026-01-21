@@ -22,9 +22,7 @@ const EventModal = ({ event, isOpen, onClose }) => {
   if (!isOpen || !event) return null;
   
   const formatDate = (dateStr) => {
-    // Parse YYYY-MM-DD format without timezone conversion
-    const [year, month, day] = dateStr.split('-').map(Number);
-    const date = new Date(year, month - 1, day);
+    const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', {
       weekday: 'long',
       month: 'long',
