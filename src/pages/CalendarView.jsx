@@ -141,47 +141,6 @@ function CalendarView() {
             </div>
           </div>
         </div>
-        
-        {/* All Upcoming Events Section */}
-        <div className="mt-12">
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              All Upcoming Events
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredEvents
-                .filter(event => {
-                  // Compare dates as strings (YYYY-MM-DD) to avoid timezone issues
-                  const today = new Date();
-                  const todayYear = today.getFullYear();
-                  const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
-                  const todayDay = String(today.getDate()).padStart(2, '0');
-                  const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
-                  return event.date >= todayStr;
-                })
-                .sort((a, b) => a.date.localeCompare(b.date))
-                .map((event) => (
-                  <EventCard
-                    key={event.id}
-                    event={event}
-                    onClick={() => handleEventClick(event)}
-                  />
-                ))}
-            </div>
-            {filteredEvents.filter(event => {
-              const today = new Date();
-              const todayYear = today.getFullYear();
-              const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
-              const todayDay = String(today.getDate()).padStart(2, '0');
-              const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
-              return event.date >= todayStr;
-            }).length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <p>No upcoming events found</p>
-              </div>
-            )}
-          </div>
-        </div>
       </main>
       
       {/* Footer */}
