@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ngo-primary focus-visible:ring-offset-2;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+}
+
+@layer components {
+  .calendar-day {
+    @apply min-h-[80px] p-2 border border-gray-200 bg-white hover:bg-gray-50 transition-colors;
+  }
+  
+  .calendar-day.today {
+    @apply bg-blue-50 border-blue-300;
+  }
+  
+  .calendar-day.other-month {
+    @apply bg-gray-100 text-gray-400;
+  }
+  
+  .event-badge {
+    @apply text-xs px-2 py-1 rounded-full font-medium truncate;
+  }
+  
+  .event-badge.awareness {
+    @apply bg-blue-100 text-blue-800;
+  }
+  
+  .event-badge.fundraising {
+    @apply bg-green-100 text-green-800;
+  }
+  
+  .event-badge.volunteering {
+    @apply bg-purple-100 text-purple-800;
+  }
+  
+  .event-badge.meeting {
+    @apply bg-orange-100 text-orange-800;
+  }
+}
