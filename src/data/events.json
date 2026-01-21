@@ -1,0 +1,136 @@
+[
+  {
+    "id": "1",
+    "title": "Community Health Awareness Day",
+    "date": "2024-12-15",
+    "startTime": "10:00",
+    "endTime": "16:00",
+    "location": "Community Center, Main Street",
+    "category": "Awareness",
+    "description": "Join us for a day of health awareness activities, free health screenings, and educational workshops. Open to all community members.",
+    "isMultiDay": false
+  },
+  {
+    "id": "2",
+    "title": "Annual Fundraising Gala",
+    "date": "2024-12-20",
+    "startTime": "18:00",
+    "endTime": "23:00",
+    "location": "Grand Hotel Ballroom",
+    "category": "Fundraising",
+    "description": "Our annual fundraising gala featuring dinner, live music, and silent auction. All proceeds support our community programs.",
+    "isMultiDay": false
+  },
+  {
+    "id": "3",
+    "title": "Volunteer Training Workshop",
+    "date": "2024-12-10",
+    "startTime": "14:00",
+    "endTime": "17:00",
+    "location": "NGO Office, Room 201",
+    "category": "Volunteering",
+    "description": "Comprehensive training session for new volunteers. Learn about our programs, policies, and how you can make a difference.",
+    "isMultiDay": false
+  },
+  {
+    "id": "4",
+    "title": "Board Meeting - Q4 Review",
+    "date": "2024-12-05",
+    "startTime": "15:00",
+    "endTime": "17:00",
+    "location": "NGO Office, Conference Room",
+    "category": "Meeting",
+    "description": "Quarterly board meeting to review Q4 activities, financial reports, and plan for the upcoming year.",
+    "isMultiDay": false
+  },
+  {
+    "id": "5",
+    "title": "Environmental Awareness Campaign",
+    "date": "2024-12-08",
+    "startTime": "09:00",
+    "endTime": "15:00",
+    "location": "City Park",
+    "category": "Awareness",
+    "description": "A full-day campaign promoting environmental conservation. Activities include tree planting, recycling workshops, and educational booths.",
+    "isMultiDay": false
+  },
+  {
+    "id": "6",
+    "title": "Holiday Food Drive",
+    "date": "2024-12-12",
+    "startTime": "08:00",
+    "endTime": "18:00",
+    "location": "Multiple Collection Points",
+    "category": "Fundraising",
+    "description": "Help us collect food donations for families in need this holiday season. Drop-off locations throughout the city.",
+    "isMultiDay": true,
+    "endDate": "2024-12-18"
+  },
+  {
+    "id": "7",
+    "title": "Volunteer Appreciation Event",
+    "date": "2024-12-22",
+    "startTime": "17:00",
+    "endTime": "20:00",
+    "location": "Community Hall",
+    "category": "Volunteering",
+    "description": "A special event to thank all our dedicated volunteers for their hard work throughout the year.",
+    "isMultiDay": false
+  },
+  {
+    "id": "8",
+    "title": "Strategic Planning Session",
+    "date": "2024-12-03",
+    "startTime": "10:00",
+    "endTime": "16:00",
+    "location": "NGO Office, Main Conference Room",
+    "category": "Meeting",
+    "description": "Annual strategic planning session with key stakeholders to set goals and priorities for the next year.",
+    "isMultiDay": false
+  },
+  {
+    "id": "9",
+    "title": "Children's Education Fair",
+    "date": "2024-12-14",
+    "startTime": "11:00",
+    "endTime": "15:00",
+    "location": "Local School Gymnasium",
+    "category": "Awareness",
+    "description": "Educational fair showcasing learning resources and programs available for children in our community.",
+    "isMultiDay": false
+  },
+  {
+    "id": "10",
+    "title": "Online Fundraising Campaign Launch",
+    "date": "2024-12-01",
+    "startTime": "00:00",
+    "endTime": "23:59",
+    "location": "Online",
+    "category": "Fundraising",
+    "description": "Launch of our month-long online fundraising campaign. Share and donate to support our mission.",
+    "isMultiDay": true,
+    "endDate": "2024-12-31"
+  },
+  {
+    "id": "11",
+    "title": "Community Garden Volunteer Day",
+    "date": "2024-12-07",
+    "startTime": "09:00",
+    "endTime": "12:00",
+    "location": "Community Garden, East Side",
+    "category": "Volunteering",
+    "description": "Help maintain our community garden. No experience necessary - we'll provide tools and guidance.",
+    "isMultiDay": false
+  },
+  {
+    "id": "12",
+    "title": "Program Coordinators Meeting",
+    "date": "2024-12-11",
+    "startTime": "13:00",
+    "endTime": "15:30",
+    "location": "NGO Office, Room 105",
+    "category": "Meeting",
+    "description": "Monthly meeting of program coordinators to discuss ongoing projects and coordinate activities.",
+    "isMultiDay": false
+  }
+]
