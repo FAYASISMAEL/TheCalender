@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/events/index.js": {
+      "maxDuration": 10
+    }
+  }
+}

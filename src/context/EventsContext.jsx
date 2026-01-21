@@ -10,14 +10,44 @@ export const useEvents = () => {
   return context;
 };
 
-const STORAGE_KEY = 'ngo-calendar-events';
-const SYNC_INTERVAL = 3000; // Sync every 3 seconds
-const SHARED_STORAGE_KEY = 'ngo-calendar-shared-events';
+const API_URL = '/api/events';
+const SYNC_INTERVAL = 5000; // Sync every 5 seconds
+const STORAGE_KEY = 'ngo-calendar-events'; // Fallback for offline
 
-// Load events from localStorage
-const loadEvents = () => {
+// Fetch events from API
+const fetchEventsFromAPI = async () => {
   try {
-    // Check if we're in a browser environment
+    const response = await fetch(API_URL);
+    if (response.ok) {
+      const events = await response.json();
+      return events;
+    }
+  } catch (error) {
+    console.error('Error fetching events from API:', error);
+  }
+  return null;
+};
+
+// Save events to API
+const saveEventsToAPI = async (events) => {
+  try {
+    const response = await fetch(API_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(events),
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Error saving events to API:', error);
+    return false;
+  }
+};
+
+// Load events from localStorage (fallback)
+const loadEventsFromStorage = () => {
+  try {
     if (typeof window !== 'undefined' && window.localStorage) {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
@@ -27,45 +57,12 @@ const loadEvents = () => {
   } catch (error) {
     console.error('Error loading events from localStorage:', error);
   }
-  // Return empty array instead of demo data
   return [];
 };
 
-// Load shared events from localStorage (using a shared key that all users can access)
-// Note: This works within the same domain. For true cross-user sync, a backend API is needed.
-const loadSharedEvents = () => {
+// Save events to localStorage (fallback/cache)
+const saveEventsToStorage = (events) => {
   try {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const shared = localStorage.getItem(SHARED_STORAGE_KEY);
-      if (shared) {
-        return JSON.parse(shared);
-      }
-    }
-  } catch (error) {
-    console.error('Error loading shared events:', error);
-  }
-  return null;
-};
-
-// Save shared events to localStorage (shared key for all users on same domain)
-const saveSharedEvents = (events) => {
-  try {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(SHARED_STORAGE_KEY, JSON.stringify(events));
-      // Broadcast to other tabs/windows
-      window.dispatchEvent(new CustomEvent('sharedEventsUpdated', { detail: events }));
-      // Also trigger storage event for cross-tab sync
-      window.dispatchEvent(new StorageEvent('storage', { key: SHARED_STORAGE_KEY }));
-    }
-  } catch (error) {
-    console.error('Error saving shared events:', error);
-  }
-};
-
-// Save events to localStorage
-const saveEvents = (events) => {
-  try {
-    // Check if we're in a browser environment
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
     }
@@ -75,115 +72,142 @@ const saveEvents = (events) => {
 };
 
 export const EventsProvider = ({ children }) => {
-  // Initialize with shared events if available, otherwise localStorage
-  const initializeEvents = () => {
-    const sharedEvents = loadSharedEvents();
-    if (sharedEvents && sharedEvents.length > 0) {
-      return sharedEvents;
-    }
-    return loadEvents();
-  };
+  const [events, setEvents] = useState(() => loadEventsFromStorage());
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [events, setEvents] = useState(() => initializeEvents());
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Save to both localStorage and sessionStorage whenever events change
+  // Fetch events from API on mount
   useEffect(() => {
-    saveEvents(events);
-    saveSharedEvents(events);
-  }, [events]);
-
-  // Listen for shared events updates from other tabs/windows
-  useEffect(() => {
-    const handleSharedEventsUpdate = (e) => {
-      if (e.detail && Array.isArray(e.detail)) {
-        setEvents(e.detail);
-      }
-    };
-
-    const handleStorageChange = (e) => {
-      // Handle localStorage changes from other tabs
-      if (e.key === STORAGE_KEY) {
-        const updatedEvents = loadEvents();
-        setEvents(updatedEvents);
-        saveSharedEvents(updatedEvents);
-      }
-      // Handle sessionStorage changes from other tabs
-      if (e.key === SHARED_STORAGE_KEY) {
-        const sharedEvents = loadSharedEvents();
-        if (sharedEvents) {
-          setEvents(sharedEvents);
+    const loadEvents = async () => {
+      setIsLoading(true);
+      const apiEvents = await fetchEventsFromAPI();
+      if (apiEvents && apiEvents.length >= 0) {
+        setEvents(apiEvents);
+        saveEventsToStorage(apiEvents);
+      } else {
+        // Use cached events if API fails
+        const cachedEvents = loadEventsFromStorage();
+        if (cachedEvents.length > 0) {
+          setEvents(cachedEvents);
         }
       }
+      setIsLoading(false);
     };
 
-    // Listen for custom shared events
-    window.addEventListener('sharedEventsUpdated', handleSharedEventsUpdate);
-    
-    // Listen for browser storage events (cross-tab synchronization)
-    window.addEventListener('storage', handleStorageChange);
+    loadEvents();
+  }, []);
 
-    // Poll for shared events updates (for cross-user sync)
-    const syncInterval = setInterval(() => {
-      const sharedEvents = loadSharedEvents();
-      if (sharedEvents && sharedEvents.length > 0) {
-        setEvents(sharedEvents);
+  // Sync events periodically from API
+  useEffect(() => {
+    const syncInterval = setInterval(async () => {
+      const apiEvents = await fetchEventsFromAPI();
+      if (apiEvents && Array.isArray(apiEvents)) {
+        setEvents(apiEvents);
+        saveEventsToStorage(apiEvents);
       }
     }, SYNC_INTERVAL);
 
-    return () => {
-      window.removeEventListener('sharedEventsUpdated', handleSharedEventsUpdate);
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(syncInterval);
-    };
+    return () => clearInterval(syncInterval);
   }, []);
 
-  // Sync events on mount and periodically
+  // Save to localStorage whenever events change (for offline cache)
   useEffect(() => {
-    const sharedEvents = loadSharedEvents();
-    if (sharedEvents && sharedEvents.length > 0) {
-      setEvents(sharedEvents);
-    }
+    saveEventsToStorage(events);
+  }, [events]);
+
+  // Listen for storage events from other tabs (cross-tab sync)
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === STORAGE_KEY) {
+        const updatedEvents = loadEventsFromStorage();
+        setEvents(updatedEvents);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  const addEvent = (eventData) => {
+  const addEvent = async (eventData) => {
     const newEvent = {
       ...eventData,
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       isMultiDay: eventData.isMultiDay || false,
     };
 
-    setEvents((prevEvents) => {
-      const updated = [...prevEvents, newEvent];
-      // Immediately sync to shared storage
-      saveSharedEvents(updated);
-      return updated;
-    });
+    // Optimistically update UI
+    setEvents((prevEvents) => [...prevEvents, newEvent]);
+
+    // Save to API
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newEvent),
+      });
+
+      if (!response.ok) {
+        // Revert on error
+        setEvents((prevEvents) => prevEvents.filter(e => e.id !== newEvent.id));
+        throw new Error('Failed to save event');
+      }
+    } catch (error) {
+      console.error('Error adding event:', error);
+      throw error;
+    }
 
     return newEvent;
   };
 
-  const updateEvent = (eventId, updatedData) => {
+  const updateEvent = async (eventId, updatedData) => {
+    // Optimistically update UI
     setEvents((prevEvents) => {
       const updated = prevEvents.map((event) =>
         event.id === eventId ? { ...event, ...updatedData } : event
       );
-      saveSharedEvents(updated);
+      
+      // Sync to API
+      saveEventsToAPI(updated);
+      
       return updated;
     });
   };
 
-  const deleteEvent = (eventId) => {
-    setEvents((prevEvents) => {
-      const updated = prevEvents.filter((event) => event.id !== eventId);
-      saveSharedEvents(updated);
-      return updated;
-    });
+  const deleteEvent = async (eventId) => {
+    // Optimistically update UI
+    setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventId));
+
+    // Delete from API
+    try {
+      const response = await fetch(API_URL, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ eventId }),
+      });
+
+      if (!response.ok) {
+        // Revert on error - reload from API
+        const apiEvents = await fetchEventsFromAPI();
+        if (apiEvents) {
+          setEvents(apiEvents);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      // Revert on error
+      const apiEvents = await fetchEventsFromAPI();
+      if (apiEvents) {
+        setEvents(apiEvents);
+      }
+    }
   };
 
-  const clearAllEvents = () => {
+  const clearAllEvents = async () => {
     setEvents([]);
-    saveSharedEvents([]);
+    await saveEventsToAPI([]);
   };
 
   const value = {

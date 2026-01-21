@@ -110,7 +110,7 @@ function AdminPage() {
         endDate: formData.isMultiDay ? formData.endDate : null, // Already in YYYY-MM-DD format
       };
 
-      addEvent(eventData);
+      await addEvent(eventData);
 
       // Show success message
       setSubmitSuccess(true);
